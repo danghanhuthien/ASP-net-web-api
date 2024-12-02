@@ -1,0 +1,21 @@
+                // **Bước 1: Lấy dữ liệu từ API A**
+                var apiAUrl = "https://localhost:7131/api/Product";
+                var apiAResponse = await _httpClient.GetAsync(apiAUrl);
+
+                if (!apiAResponse.IsSuccessStatusCode)
+                {
+                    _logger.LogError("Không thể lấy dữ liệu từ API A. StatusCode: {StatusCode}", apiAResponse.StatusCode);
+                    return StatusCode((int)apiAResponse.StatusCode, "Không thể lấy dữ liệu từ API A.");
+                }
+
+                var apiAData = await apiAResponse.Content.ReadAsStringAsync();
+                _logger.LogInformation("Dữ liệu gốc từ API A: {RawData}", apiAData);
+
+                var products = JsonSerializer.Deserialize<List<Product>>(apiAData);
+                if (products == null || products.Count == 0)
+                {
+                    _logger.LogWarning("Không có dữ liệu từ API A.");
+                    return NotFound("Không có dữ liệu nào từ API A.");
+                }
+
+                _logger.LogInformation("Tổng số sản phẩm từ API A: {ProductCount}", products.Count);
